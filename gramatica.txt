@@ -1,5 +1,8 @@
-S -> E
-E -> E + T | E - T | T
-T -> T * F | T / F | F
-F -> ( E ) | number
-number -> [0-9]+
+Vt: a b c f
+Vxt: S
+S: a
+P:
+a -> b + c
+b -> b + a
+c -> c + f
+f -> f
