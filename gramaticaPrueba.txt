@@ -1,0 +1,7 @@
+Vt: a b
+Vxt: S A B
+S: S
+P:
+S -> A B
+A -> a
+B -> b
