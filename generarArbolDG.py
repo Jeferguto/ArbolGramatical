@@ -1,4 +1,3 @@
-#Este codgio sirve con diferentes gramaticas pero se debe cambiar en el archivo segun el archivo_gramatica, ademas en este caso se usa graphbiz_layaout
 import networkx as nx  # Importar la biblioteca NetworkX para la creación de grafos
 import matplotlib.pyplot as plt  # Importar Matplotlib para la visualización de gráficos
 from networkx.drawing.nx_agraph import graphviz_layout  # Importar la función para el diseño de gráficos con Graphviz
@@ -29,19 +28,24 @@ def construirArbol(reglas, nodoInicial, tokens):
     
     def expandirNodo(nodo, profundidad):
         nonlocal indiceToken  # Permitir que la función interna acceda a la variable externa
-        if nodo in reglas and indiceToken < len(tokens):  # Verificar si hay más tokens por procesar
+        if nodo in reglas and indiceToken <= len(tokens):  # Aceptar incluso si llegamos al final de los tokens
             for produccion in reglas[nodo]:  # Iterar sobre las producciones de la regla actual
                 simbolos = produccion.split()  # Separar los símbolos en la producción
                 subArbolValido = True  # Bandera para verificar la validez del subárbol
                 for simbolo in simbolos:  # Iterar sobre los símbolos en la producción
+                    if simbolo == 'ε':  # Manejo del vacío
+                        arbol.add_node('ε', layer=profundidad)  # Agregar nodo vacío al árbol
+                        arbol.add_edge(nodo, 'ε')  # Crear un borde desde el nodo padre al símbolo vacío
+                        derivacion.append('ε')  # Agregar el vacío a la derivación
+                        continue  # Continuar con el siguiente símbolo de la producción
+
                     if indiceToken >= len(tokens):  # Salir si ya no hay más tokens por procesar
                         break
-                    
-                    # Agregar el símbolo al árbol y verificar si es un no terminal o un terminal
+
                     if simbolo == tokens[indiceToken]:  # Verificar si el símbolo coincide con el token actual
                         arbol.add_node(simbolo, layer=profundidad)  # Agregar el símbolo como nodo en el árbol
                         arbol.add_edge(nodo, simbolo)  # Crear un borde desde el nodo padre al símbolo
-                        derivacion.append(simbolo)  # Agregar el símbolo a la li1ta de derivación
+                        derivacion.append(simbolo)  # Agregar el símbolo a la lista de derivación
                         indiceToken += 1  # Avanzar al siguiente token
                     elif simbolo in reglas:  # Si el símbolo es un no terminal
                         arbol.add_node(simbolo, layer=profundidad)  # Agregar el símbolo como nodo en el árbol
@@ -72,7 +76,7 @@ def visualizarArbol(arbol):
 # Función para validar si la cadena ingresada corresponde a la derivación
 def esCadenaValida(tokens, derivacion, reglas):
     # Filtrar los tokens que no son no terminales de la derivación
-    derivacionSinTerminales = [token for token in derivacion if token not in reglas]
+    derivacionSinTerminales = [token for token in derivacion if token not in reglas and token != 'ε']
     return tokens == derivacionSinTerminales[:len(tokens)]  # Comparar los tokens con la derivación filtrada
 
 # Función principal
